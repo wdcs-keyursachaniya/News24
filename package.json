@@ -16,7 +16,6 @@
   "dependencies": {
     "@portabletext/react": "^2.0.0",
     "@sanity/block-tools": "^3.41.1",
-    "@sanity/client": "3.4.1",
     "@sanity/cross-dataset-duplicator": "^1.0.0",
     "@sanity/image-url": "^1.0.2",
     "@sanity/schema": "^3.41.1",

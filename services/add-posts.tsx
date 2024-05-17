@@ -1,28 +1,9 @@
-import { htmlToBlocks } from '@sanity/block-tools';
-import { SanityClient } from '@sanity/client';
-import { Schema } from '@sanity/schema';
 import axios from 'axios';
+import { Schema } from '@sanity/schema';
+import { SanityClient } from '@sanity/client';
+import { htmlToBlocks } from '@sanity/block-tools';
 import { JSDOM } from 'jsdom';
-import sanityClient from '@sanity/client';
-
 import { CsvData, PostDetails, ReferenceDetails } from '../types';
-
-const createSanityClient = (dataset: string) => {
-  return sanityClient({
-    dataset: dataset || process.env.NEXT_PUBLIC_SANITY_DATASET,
-    token: process.env.SANITY_API_WRITE_TOKEN,
-    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-    useCdn: true,
-    // useCdn == true gives fast, cheap responses using a globally distributed cache.
-    // When in production the Sanity API is only queried on build-time, and on-demand when responding to webhooks.
-    // Thus the data need to be fresh and API response time is less important.
-    // When in development/working locally, it's more important to keep costs down as hot reloading can incurr a lot of API calls
-    // And every page load calls getStaticProps.
-    // To get the lowest latency, lowest cost, and latest data, use the Instant Preview mode
-    apiVersion: '2022-03-13',
-    // see https://www.sanity.io/docs/api-versioning for how versioning works
-  })
-}
 
 /**
  * Function to map content, like, paragraph, headings, image of the post and modify the post details object
@@ -199,48 +180,36 @@ const fetchAndUpdateAuthorDetails = async (
   author: string,
   authorDetails: Record<string, string>,
   postDetailsObj: PostDetails,
-  dataset: string
+  sanityClient: SanityClient
 ) => {
-
-  try {
-    
-    console.log("🚀 ~ authorDetails:", authorDetails)
-  
-    // Finding author's sanity id if already fetched author details before
-    if (authorDetails[author]) {
-      postDetailsObj['author'] = {
-        _ref: authorDetails[author],
-        _type: 'reference',
-      };
-      return postDetailsObj;
-    }
-  
-    // Query to fetch author details
-    const query = `*[_type == "author" && name == $author][0]{
-      _id, name
-    }`;
-  
-    console.log("🚀 ~ createSanityClient(dataset).:", createSanityClient(dataset))
-  
-    // Fertching author details
-    const res = await createSanityClient(dataset).fetch("*");
-    console.log("🚀 ~ res:", res)
-  
-    // If author details not found then throwing error
-    if (!res) throw { message: 'Author details not found' };
-  
-    // If author details found then adding the details in authorDetails obj
-    authorDetails[author] = res._id;
-  
-    // Adding author reference details in post details
+  // Finding author's sanity id if already fetched author details before
+  if (authorDetails[author]) {
     postDetailsObj['author'] = {
-      _ref: res._id,
+      _ref: authorDetails[author],
       _type: 'reference',
     };
     return postDetailsObj;
-  } catch (error) {
-    console.log("🚀 ~ error:----fetchAndUpdateAuthorDetails---->", error)
   }
+
+  // Query to fetch author details
+  const query = `*[_type == "author" && name == $author][0]{
+    _id, name
+  }`;
+
+  // Fertching author details
+  const res = await sanityClient.fetch(query, { author });
+
+  // If author details not found then throwing error
+  if (!res) throw { message: 'Author details not found' };
+
+  // If author details found then adding the details in authorDetails obj
+  authorDetails[author] = res._id;
+
+  // Adding author reference details in post details
+  postDetailsObj['author'] = {
+    _ref: res._id,
+    _type: 'reference',
+  };
 }
 
 /**
@@ -254,43 +223,36 @@ const fetchAndUpdateLanguageDetails = async (
   language: string,
   languageDetails: Record<string, string>,
   postDetailsObj: PostDetails,
-  dataset: string
+  sanityClient: SanityClient
 ) => {
-  try {
-    console.log("🚀 ~ language:", language)
-    // Finding language's sanity id if already fetched language details before
-    if (languageDetails[language]) {
-      postDetailsObj['language'] = {
-        _ref: languageDetails[language],
-        _type: 'reference',
-      };
-      return postDetailsObj;
-    }
-  
-    // Query to fetch language details
-    const query = `*[_type == "languages" && language == $language][0]{
-      _id, language
-    }`;
-  
-    // Fertching language details
-    const res = await createSanityClient(dataset).fetch(query, { language });
-    console.log("🚀 ~ res:", res)
-  
-    // If language details not found then throwing error
-    if (!res) throw { message: 'Language details not found' };
-  
-    // If language details found then adding the details in languageDetails obj
-    languageDetails[language] = res._id;
-  
-    // Adding language reference details in post details
+  // Finding language's sanity id if already fetched language details before
+  if (languageDetails[language]) {
     postDetailsObj['language'] = {
-      _ref: res._id,
+      _ref: languageDetails[language],
       _type: 'reference',
     };
     return postDetailsObj;
-  } catch (error) {
-    console.log("🚀 ~ error:---274-->", error)
   }
+
+  // Query to fetch language details
+  const query = `*[_type == "languages" && language == $language][0]{
+    _id, language
+  }`;
+
+  // Fertching language details
+  const res = await sanityClient.fetch(query, { language });
+
+  // If language details not found then throwing error
+  if (!res) throw { message: 'Language details not found' };
+
+  // If language details found then adding the details in languageDetails obj
+  languageDetails[language] = res._id;
+
+  // Adding language reference details in post details
+  postDetailsObj['language'] = {
+    _ref: res._id,
+    _type: 'reference',
+  };
 }
 
 /**
@@ -304,43 +266,36 @@ const fetchAndUpdateCategoryDetails = async (
   category: string,
   categoryDetails: Record<string, string>,
   postDetailsObj: PostDetails,
-  dataset: string
+  sanityClient: SanityClient
 ) => {
-  try {
-    console.log("🚀 ~ category:", category)
-    // Finding category's sanity id if already fetched category details before
-    if (categoryDetails[category]) {
-      postDetailsObj['category'] = {
-        _ref: categoryDetails[category],
-        _type: 'reference',
-      };
-      return postDetailsObj;
-    }
-  
-    // Query to fetch category details
-    const query = `*[_type == "category" && name == $category][0]{
-      _id, name
-    }`;
-  
-    // Fertching category details
-    const res = await createSanityClient(dataset).fetch(query, { category });
-    console.log("🚀 ~ res:", res)
-  
-    // If category details not found then throwing error
-    if (!res) throw { messag: 'Category details not found' };
-  
-    // If category details found then adding the details in categoryDetails obj
-    categoryDetails[category] = res._id;
-  
-    // Adding category reference details in post details
+  // Finding category's sanity id if already fetched category details before
+  if (categoryDetails[category]) {
     postDetailsObj['category'] = {
-      _ref: res._id,
+      _ref: categoryDetails[category],
       _type: 'reference',
     };
     return postDetailsObj;
-  } catch (error) {
-    console.log("🚀 ~ error:------323---->", error)
   }
+
+  // Query to fetch category details
+  const query = `*[_type == "category" && name == $category][0]{
+    _id, name
+  }`;
+
+  // Fertching category details
+  const res = await sanityClient.fetch(query, { category });
+
+  // If category details not found then throwing error
+  if (!res) throw { messag: 'Category details not found' };
+
+  // If category details found then adding the details in categoryDetails obj
+  categoryDetails[category] = res._id;
+
+  // Adding category reference details in post details
+  postDetailsObj['category'] = {
+    _ref: res._id,
+    _type: 'reference',
+  };
 }
 
 /**
@@ -353,10 +308,8 @@ const fetchAndUpdateCategoryDetails = async (
 const uploadAndGetImageIdDetails = async (
   imageUrl: string,
   imageDetails: Record<string, string>,
-    dataset: string
-
+  sanityClient: SanityClient
 ): Promise<string> => {
-  console.log("🚀 ~ imageUrl:", imageUrl)
   try {
     // Checking details if already uploaded to sanity
     if (imageDetails[imageUrl]) return imageDetails[imageUrl];
@@ -365,7 +318,7 @@ const uploadAndGetImageIdDetails = async (
     const imageData = await axios.get(imageUrl, { responseType: 'arraybuffer' });
 
     // Uploading the image to sanity to get sanity id
-    const assetDocument = await createSanityClient(dataset).assets.upload(
+    const assetDocument = await sanityClient.assets.upload(
       'image',
       imageData.data
     );
@@ -376,7 +329,6 @@ const uploadAndGetImageIdDetails = async (
     // Returning the sanity image id
     return assetDocument._id;
   } catch (error) {
-    console.log("🚀 ~ error: (upload image error)", error)
     throw { message: 'Something went wrong while uploading image to Sanity' };
   }
 }
@@ -390,10 +342,9 @@ const uploadAndGetImageIdDetails = async (
  */
 export const mapDataToDefinedSchema = async (
   data: CsvData,
-  dataset: string,
+  sanityClient: SanityClient,
   referenceDetails: ReferenceDetails
 ): Promise<PostDetails> => {
-  console.log("🚀 ~ sanityClient:")
   const {
     Body: body,
     Meta: description,
@@ -404,7 +355,6 @@ export const mapDataToDefinedSchema = async (
     'URL Slug': slug,
     'Image - Assets': coverImage,
   } = data;
-    console.log("🚀 ~ Author:", author)
   const { authorDetails, languageDetails, categoryDetails, imageDetails } = referenceDetails;
 
   const postDetailsObj: PostDetails = {
@@ -421,22 +371,20 @@ export const mapDataToDefinedSchema = async (
   try {
     // Mapping post content
     convertHtmlToBlocks(body, postDetailsObj);
-    console.log("🚀 ~ postDetailsObj: (after converting block content)")
 
-    // await Promise.all([
+    await Promise.all([
       // Fetching and updating author details
-    await fetchAndUpdateAuthorDetails(author, authorDetails, postDetailsObj, dataset);
+      fetchAndUpdateAuthorDetails(author, authorDetails, postDetailsObj, sanityClient),
 
-    // Fetching and updating category details
-    await fetchAndUpdateCategoryDetails(category, categoryDetails, postDetailsObj, dataset);
+      // Fetching and updating category details
+      fetchAndUpdateCategoryDetails(category, categoryDetails, postDetailsObj, sanityClient),
 
-    // Fetching and updating language details
-    await fetchAndUpdateLanguageDetails(language, languageDetails, postDetailsObj, dataset);
-    // ]);
+      // Fetching and updating language details
+      fetchAndUpdateLanguageDetails(language, languageDetails, postDetailsObj, sanityClient),
+    ]);
 
     // uploading image to the sanity and getting sanity id of the image for reference
-    const imageId = await uploadAndGetImageIdDetails(coverImage, imageDetails, dataset);
-    console.log("🚀 ~ imageId:", imageId)
+    const imageId = await uploadAndGetImageIdDetails(coverImage, imageDetails, sanityClient);
     postDetailsObj['coverImage'] = {
       _type: 'image',
       asset: {
@@ -444,10 +392,8 @@ export const mapDataToDefinedSchema = async (
         _ref: imageId,
       },
     };
-    console.log("🚀 ~ postDetailsObj:-----407---->")
     return postDetailsObj;
   } catch (error) {
-    console.log("🚀 ~ error:", error)
     throw { message: `${error.message || error || 'Something went wrong while adding post'}` };
   }
 }
