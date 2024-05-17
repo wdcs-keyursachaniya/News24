@@ -7,14 +7,15 @@ import { defineConfig, Slug, definePlugin } from 'sanity'
 import { deskTool } from 'sanity/desk'
 import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash'
 import { crossDatasetDuplicator } from '@sanity/cross-dataset-duplicator'
-import { PostsPreview } from './components/Posts/PostsPreview'
+import { table } from '@sanity/table'
 import authorType from './schemas/author'
 import postType from './schemas/post'
 import settingsType from './schemas/settings'
 import categoryType from './schemas/categoryType'
 import tag from './schemas/tag'
 import languages from './schemas/languages'
-import { table } from '@sanity/table'
+import CSVUpload from './components/CSVUpload/CSVUpload';
+import { PostsPreview } from './components/Posts/PostsPreview'
 
 // @TODO: update next-sanity/studio to automatically set this when needed
 const basePath = '/studio'
@@ -60,6 +61,9 @@ const sharedConfig = definePlugin({
           return S.document().views([
             S.view.form(),
             S.view.component(PostsPreview).title('Preview'),
+
+            // This component will only display when creating new posts
+            window.location.href.includes("template") && S.view.component(CSVUpload).title('CSV Upload'),
           ])
         }
 
