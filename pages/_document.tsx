@@ -7,6 +7,16 @@ export default class MyDocuments extends Document {
     return (
       <Html lang="en">
         <Head>
+          {/* Cookiebot script */}
+          <script
+            id="Cookiebot"
+            src="https://consent.cookiebot.com/uc.js"
+            data-cbid="9699f32c-598b-4346-a216-dbd982c3a659"
+            data-blockingmode="auto"
+            type="text/javascript"
+            async
+          ></script>
+          {/* End Cookiebot script */}
           {/* Google Tag Manager */}
           <script
             dangerouslySetInnerHTML={{
