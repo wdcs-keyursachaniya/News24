@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }) {
     return () => {
       window.removeEventListener('illow:consentUpdate', handleConsentUpdate);
     };
-  }, [window]);
+  }, []);
 
   return <Component {...pageProps} />
 }
