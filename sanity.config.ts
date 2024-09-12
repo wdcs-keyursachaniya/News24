@@ -16,6 +16,7 @@ import tag from './schemas/tag'
 import languages from './schemas/languages'
 import CSVUpload from './components/CSVUpload/CSVUpload';
 import { PostsPreview } from './components/Posts/PostsPreview'
+import riskDisclaimer from './schemas/riskDisclaimer'
 
 // @TODO: update next-sanity/studio to automatically set this when needed
 const basePath = '/studio'
@@ -24,7 +25,7 @@ const sharedConfig = definePlugin({
   name: 'sharedConfig',
   schema: {
     // If you want more content types, you can add them to this array
-    types: [settingsType, postType, authorType, categoryType, tag, languages],
+    types: [settingsType, postType, authorType, categoryType, tag, languages, riskDisclaimer],
   },
   plugins: [
     deskTool({
