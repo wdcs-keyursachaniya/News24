@@ -239,6 +239,7 @@ export default defineType({
       name: 'riskDisclaimer',
       title: 'Risk Disclaimer',
       type: 'boolean',
+      initialValue: false,
       description: 'Toggle to show risk disclaimer',
     },
   ],
