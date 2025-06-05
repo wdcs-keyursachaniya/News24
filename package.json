@@ -35,7 +35,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.8.0",
     "react-is": "^18.2.0",
-    "sanity": "3.2.4",
+    "sanity": "^3.91.0",
     "sanity-plugin-asset-source-unsplash": "3.0.0-v3-studio.13",
     "styled-components": "^5.3.6"
   },
