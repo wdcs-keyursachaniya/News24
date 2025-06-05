@@ -1,13 +1,11 @@
-import {preloadModule} from 'react-dom'
-
-const bridgeScript = 'https://core.sanity-cdn.com/bridge.js'
-
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
-  preloadModule(bridgeScript, {as: 'script'})
-  return (
-    <>
-      <script src={bridgeScript} async type="module" />
-      {children}
-    </>
-  )
-}
+    return (
+      <>
+        <head>
+          <link rel="preload" href="https://core.sanity-cdn.com/bridge.js" as="script" />
+        </head>
+        <script src="https://core.sanity-cdn.com/bridge.js" async type="module" />
+        {children}
+      </>
+    )
+  }
