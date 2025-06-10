@@ -136,7 +136,7 @@ const sharedConfig = definePlugin({
 export default defineConfig([
   {
     name: 'staging',
-    basePath: '/',
+    basePath: '/studio/staging',
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: 'staging',
     title: 'Staging',
@@ -144,7 +144,7 @@ export default defineConfig([
   },
   {
     name: 'Production',
-    basePath: '/',
+    basePath: '/studio/production',
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: 'production',
     title: 'Production',
