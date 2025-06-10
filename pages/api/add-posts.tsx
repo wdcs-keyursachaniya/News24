@@ -1,7 +1,6 @@
 import Joi from 'joi';
 import papaparse from 'papaparse';
 import { createClient } from 'next-sanity';
-import { SanityClient } from '@sanity/client';
 import { sanityConfig } from '../../lib/config';
 import { mapDataToDefinedSchema } from '../../services/add-posts';
 import { sendAddPostaReportMail } from '../../services/email.service';
@@ -52,7 +51,7 @@ const handlePostCreation = async (reqBody: ReqBody) => {
       }
 
       // Mapping CSV data according to the predefined post schema
-      const postDetailsObj = await mapDataToDefinedSchema(item, sanityClient, { authorDetails, languageDetails, categoryDetails, imageDetails });
+      const postDetailsObj = await mapDataToDefinedSchema(item, sanityClient as any, { authorDetails, languageDetails, categoryDetails, imageDetails });
 
       // Creating post in sanity
       await sanityClient.create(postDetailsObj);
